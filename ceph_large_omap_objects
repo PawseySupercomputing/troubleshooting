@@ -1,0 +1,17 @@
+Putting together knowledge from different tutorial an troubleshooting, this is how we fixed LARGE_OMAP_OBJECTS problem in ceph where it reports something like:
+
+ceph health detail HEALTH_WARN 1 large omap objects
+LARGE_OMAP_OBJECTS 1 large omap objects
+1 large objects found in pool 'pool_metadata'
+
+Many tutorials such as *1, suggest to find the involved PGs and deep-scrub the full osd. In our cluster there where 4 large omap objects, but scrubbing the relevant placement group did not help with the issue.
+
+In the beginning we though of scrubbing issues or not performed so we followed this tutorial to fix investigate that more in details *2. The deep-scrubs of the relevant PGs where performed correctly though and did not change the issue. 
+
+Prior to this since this is a multizone cluster, the large omap buckets where manually sharded from 0 (no shards) to 8, then RGWs restarted, with no changes.
+
+The solution that "fixed" the issue in the end was deep-scrubbing all the osds of the metadata index pool, and that solved the issue on a matter of minutes after the deep-scrubbed completed.
+
+References:
+*1: http://knowledgebase.45drives.com/kb/kb450188-cephfs-removing-large-omap-objects/
+*2: https://rcblog.erc.monash.edu.au/blog/2018/04/ceph-placement-group-scrubbing/
